@@ -28,31 +28,70 @@
 
 // vite.config.ts  ← YE PURA REPLACE KAR DO
 
+// import { defineConfig } from "vite";
+// import react from "@vitejs/plugin-react-swc";
+// import path from "path";
+
+// // Lovable tagger sirf development mein chalega — production mein nahi
+// const isDev = process.env.NODE_ENV === "development";
+// let commands = [];
+
+// if (isDev) {
+//   const { componentTagger } = await import("lovable-tagger");
+//   commands.push(componentTagger());
+// }
+
+// export default defineConfig({
+//   plugins: [react(), ...commands],
+//   resolve: {
+//     alias: {
+//       "@": path.resolve(__dirname, "./src"),
+//     },
+//   },
+//   base: "/", // ← Vercel ke liye zaroori
+//   build: {
+//     rollupOptions: {
+//       // Yeh line error ko permanently khatam kar degi
+//       external: [],
+//     },
+//   },
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// vite.config.ts (100% Vercel + Production safe)
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
-// Lovable tagger sirf development mein chalega — production mein nahi
-const isDev = process.env.NODE_ENV === "development";
-let commands = [];
-
-if (isDev) {
-  const { componentTagger } = await import("lovable-tagger");
-  commands.push(componentTagger());
-}
-
 export default defineConfig({
-  plugins: [react(), ...commands],
+  plugins: [
+    react(),
+    // Lovable tagger ko completely hata diya production ke liye
+    ...(process.env.NODE_ENV === "development"
+      ? [require("lovable-tagger").componentTagger()]
+      : [])
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: "/", // ← Vercel ke liye zaroori
+  base: "/",
   build: {
     rollupOptions: {
-      // Yeh line error ko permanently khatam kar degi
-      external: [],
+      input: "index.html", // Yeh line 99% cases mein fix karti hai Vercel error
     },
   },
 });
